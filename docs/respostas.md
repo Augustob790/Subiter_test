@@ -33,20 +33,22 @@ classDiagram
 Aplicações de SOLID/POO: encapsulamento dos atributos, polimorfismo para o
 relatório, SRP em cada modalidade, OCP para novas modalidades, LSP no uso de
 `Inspection` e DIP nos consumidores. A implementação completa está em
-`/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt/question1.h` e
-`question1.cpp`. O ponto de entrada está em `subiter_test_c_qt/main.cpp` e o
+`subiter_test_c_qt/question1.h` e `subiter_test_c_qt/question1.cpp`. O ponto de
+entrada está em `subiter_test_c_qt/main.cpp` e o
 projeto é configurado pelo `subiter_test_c_qt/CMakeLists.txt`.
 
-O projeto C++/Qt é separado do aplicativo Flutter. Sua estrutura é:
+O projeto C++/Qt fica em uma subpasta do mesmo repositório, separado do código
+Flutter. Sua estrutura é:
 
 ```text
-/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt/
-  CMakeLists.txt
-  main.cpp
-  question1.h
-  question1.cpp
-  question3.h
-  question3.cpp
+subiter_test/
+  subiter_test_c_qt/
+    CMakeLists.txt
+    main.cpp
+    question1.h
+    question1.cpp
+    question3.h
+    question3.cpp
 ```
 
 Ele utiliza C++17 e `Qt6::Core`. Há somente um `main()`: as implementações das
@@ -210,7 +212,7 @@ impressos.
 Os arquivos `question3.h` e `question3.cpp` ficam em:
 
 ```text
-/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt
+subiter_test/subiter_test_c_qt
 ```
 
 A atividade é iniciada por `runQuestion3()` a partir do único `main.cpp` do
@@ -226,7 +228,7 @@ exibe “A entrada de dados foi encerrada”.
 Execução pelo Terminal:
 
 ```bash
-cd "/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt"
+cd subiter_test/subiter_test_c_qt
 cmake -S . -B build
 cmake --build build
 ./build/SubiterInspections

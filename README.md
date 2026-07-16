@@ -1,25 +1,28 @@
 # Prova técnica Subiter - respostas, Flutter e Qt
 
-As quatro respostas da `Prova_Subiter_Rev1.pdf` estão divididas em dois projetos
-irmãos dentro de `/Users/augustobatista/Documents/SUBITER/`:
+Este repositório reúne as quatro respostas da `Prova_Subiter_Rev1.pdf`. O
+aplicativo Flutter fica na raiz e o projeto C++/Qt está na subpasta
+`subiter_test_c_qt/`:
 
 ```text
-SUBITER/
-  subiter_test/        # questões 2 e 4 em Flutter, documentação e PDF
+subiter_test/
+  lib/                 # questões 2 e 4 em Flutter
   subiter_test_c_qt/   # questões 1 e 3 em C++17/Qt 6
+  docs/                # respostas e imagens da documentação
+  output/pdf/          # PDF final
 ```
 
 ## Entregáveis
 
-- [`question1.h`](../subiter_test_c_qt/question1.h) e
-  [`question1.cpp`](../subiter_test_c_qt/question1.cpp): modelagem C++/Qt para
+- [`question1.h`](subiter_test_c_qt/question1.h) e
+  [`question1.cpp`](subiter_test_c_qt/question1.cpp): modelagem C++/Qt para
   inspeções termográficas e por ultrassom.
-- [`question3.h`](../subiter_test_c_qt/question3.h) e
-  [`question3.cpp`](../subiter_test_c_qt/question3.cpp): cadastro e listagem de
+- [`question3.h`](subiter_test_c_qt/question3.h) e
+  [`question3.cpp`](subiter_test_c_qt/question3.cpp): cadastro e listagem de
   três equipamentos.
-- [`main.cpp`](../subiter_test_c_qt/main.cpp): ponto de entrada único que
+- [`main.cpp`](subiter_test_c_qt/main.cpp): ponto de entrada único que
   executa as questões 1 e 3.
-- [`CMakeLists.txt`](../subiter_test_c_qt/CMakeLists.txt): configuração CMake
+- [`CMakeLists.txt`](subiter_test_c_qt/CMakeLists.txt): configuração CMake
   do executável Qt.
 - `lib/`: aplicativo Flutter das questões 2 e 4.
 - `assets/mocks/inspections.json`: resposta JSON que simula a API REST.
@@ -132,10 +135,10 @@ flutter build apk --debug
 
 ## Aplicativo C++/Qt - questões 1 e 3
 
-O código C++ não faz parte do projeto Flutter. Ele está no diretório separado:
+O código C++ está isolado do código Flutter na subpasta do mesmo repositório:
 
 ```bash
-cd "/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt"
+cd subiter_test_c_qt
 ```
 
 A estrutura é:
@@ -156,7 +159,7 @@ O projeto utiliza C++17 e somente o módulo `Qt6::Core`. Existe apenas um
 
 ### Executar no Qt Creator
 
-1. Abra [`subiter_test_c_qt/CMakeLists.txt`](../subiter_test_c_qt/CMakeLists.txt)
+1. Abra [`subiter_test_c_qt/CMakeLists.txt`](subiter_test_c_qt/CMakeLists.txt)
    no Qt Creator.
 2. Selecione o kit Qt 6 para macOS e configure o projeto.
 3. Em **Projects > Run > Run Settings**, habilite **Run in terminal**.
@@ -169,7 +172,7 @@ encerrada”.
 ### Executar pelo Terminal
 
 ```bash
-cd "/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt"
+cd subiter_test_c_qt
 cmake -S . -B build
 cmake --build build
 ./build/SubiterInspections
@@ -178,3 +181,11 @@ cmake --build build
 Caso o Qt não seja encontrado pelo CMake no Terminal, informe a instalação do
 Qt em `CMAKE_PREFIX_PATH` ou compile diretamente pelo kit configurado no Qt
 Creator.
+
+### Versionamento no Git
+
+`subiter_test_c_qt/` deve ser uma pasta comum deste repositório. Se existir um
+`subiter_test_c_qt/.git`, o Git a trata como um repositório incorporado e não
+inclui seus arquivos C++ no commit do projeto principal. O diretório `build/` e
+os arquivos de configuração pessoal do Qt Creator permanecem ignorados pelo
+`.gitignore` do projeto Qt.

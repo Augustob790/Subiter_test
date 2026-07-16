@@ -252,7 +252,10 @@ private:
 """),
         p(
             "A implementação C++/Qt completa, incluindo construtores, relatórios e "
-            "exemplo de uso polimórfico, está em <b>docs/questao_1.cpp</b>."
+            "exemplo de uso polimórfico, está em "
+            "<b>subiter_test_c_qt/question1.h</b> e "
+            "<b>subiter_test_c_qt/question1.cpp</b>. O executável usa o único "
+            "ponto de entrada definido em <b>subiter_test_c_qt/main.cpp</b>."
         ),
         PageBreak(),
     ]
@@ -364,10 +367,18 @@ private:
         bullet("Ao final, percorrer os três objetos e imprimir todos os atributos."),
         p("Compilação", "H2Custom"),
         code("""
-g++ -std=c++17 -Wall -Wextra -Wpedantic docs/questao_3.cpp -o questao_3
-./questao_3
+cd subiter_test_c_qt
+cmake -S . -B build
+cmake --build build
+./build/SubiterInspections
 """),
-        p("O programa completo está em <b>docs/questao_3.cpp</b>."),
+        p(
+            "O programa completo está em "
+            "<b>subiter_test_c_qt/question3.h</b> e "
+            "<b>subiter_test_c_qt/question3.cpp</b>. No Qt Creator, a opção "
+            "<b>Run in terminal</b> deve estar habilitada porque a atividade usa "
+            "entrada interativa com std::cin."
+        ),
         PageBreak(),
     ]
 
@@ -442,7 +453,7 @@ Future<Activity> call({
         [p("Questão 2"), p("lib/modules/inspections/")],
         [p("JSON REST simulado"), p("assets/mocks/inspections.json")],
         [p("Questão 4"), p("lib/modules/activities/")],
-        [p("Questões 1 e 3"), p("docs/questao_1.cpp e docs/questao_3.cpp")],
+        [p("Questões 1 e 3"), p("subiter_test_c_qt/question1.* e question3.*")],
         [p("Testes"), p("test/")],
     ]
     table = Table(rows, colWidths=[48 * mm, 107 * mm], repeatRows=1)
@@ -463,7 +474,8 @@ Future<Activity> call({
         code("""
 flutter analyze
 flutter test
-g++ -std=c++17 -Wall -Wextra -Wpedantic docs/questao_3.cpp -o questao_3
+cmake -S subiter_test_c_qt -B subiter_test_c_qt/build
+cmake --build subiter_test_c_qt/build
 """),
         bullet("Análise estática Flutter: sem problemas."),
         bullet("Testes automatizados: parsing, estados das inspeções, erros e cadastro validados."),
