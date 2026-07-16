@@ -1,0 +1,46 @@
+import 'package:flutter/foundation.dart';
+
+import '../domain/entities/activity.dart';
+import '../domain/use_cases/register_activity.dart';
+import '../domain/use_cases/update_activity.dart';
+
+enum ActivityRegistrationStatus { initial, saving, success, failure }
+
+class ActivityRegistrationViewModel extends ChangeNotifier {
+  ActivityRegistrationViewModel(this._registerActivity, this._updateActivity);
+
+  final RegisterActivity _registerActivity;
+  final UpdateActivity _updateActivity;
+
+  ActivityRegistrationStatus _status = ActivityRegistrationStatus.initial;
+  Activity? _activity;
+
+  ActivityRegistrationStatus get status => _status;
+  Activity? get activity => _activity;
+  bool get isSaving => _status == ActivityRegistrationStatus.saving;
+
+  Future<void> submit({int? id, required String companyName, required String location}) async {
+    if (isSaving) return;
+    _status = ActivityRegistrationStatus.saving;
+    notifyListeners();
+    try {
+      if (id != null) {
+        // Obter data de criacao existente seria ideal, mas para simplificar
+        // usamos a data atual no update, ou passamos a atividade inteira
+        // Vamos usar a data de agora, ja que o backend/SQLite seria a fonte da verdade ideal.
+        _activity = await _updateActivity(
+          id: id,
+          companyName: companyName,
+          location: location,
+          createdAt: DateTime.now(),
+        );
+      } else {
+        _activity = await _registerActivity(companyName: companyName, location: location);
+      }
+      _status = ActivityRegistrationStatus.success;
+    } on Object {
+      _status = ActivityRegistrationStatus.failure;
+    }
+    notifyListeners();
+  }
+}

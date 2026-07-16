@@ -1,0 +1,63 @@
+{
+  "statusCode": 200,
+  "message": "Inspeções carregadas com sucesso",
+  "data": {
+    "inspections": [
+      {
+        "id": "INS-2026-001",
+        "type": "thermographic",
+        "inspector": "Ana Souza",
+        "date": "2026-07-10T09:30:00-03:00",
+        "result": "attention",
+        "equipment": "Painel elétrico QGBT-01",
+        "location": "Planta A - Sala elétrica",
+        "summary": "Ponto quente identificado no disjuntor principal.",
+        "measurement": {"label": "Temperatura máxima", "value": 87.4, "unit": "°C"}
+      },
+      {
+        "id": "INS-2026-002",
+        "type": "ultrasound",
+        "inspector": "Carlos Lima",
+        "date": "2026-07-10T14:15:00-03:00",
+        "result": "approved",
+        "equipment": "Tubulação de vapor TV-12",
+        "location": "Planta A - Utilidades",
+        "summary": "Espessura dentro da tolerância de projeto.",
+        "measurement": {"label": "Espessura medida", "value": 8.25, "unit": "mm"}
+      },
+      {
+        "id": "INS-2026-003",
+        "type": "thermographic",
+        "inspector": "Mariana Alves",
+        "date": "2026-07-11T08:00:00-03:00",
+        "result": "approved",
+        "equipment": "Motor elétrico M-204",
+        "location": "Planta B - Linha 2",
+        "summary": "Distribuição térmica uniforme, sem anomalias.",
+        "measurement": {"label": "Temperatura máxima", "value": 62.1, "unit": "°C"}
+      },
+      {
+        "id": "INS-2026-004",
+        "type": "ultrasound",
+        "inspector": "Rafael Mendes",
+        "date": "2026-07-11T13:40:00-03:00",
+        "result": "rejected",
+        "equipment": "Vaso de pressão VP-07",
+        "location": "Planta B - Processo",
+        "summary": "Perda de espessura acima do limite permitido.",
+        "measurement": {"label": "Espessura medida", "value": 3.8, "unit": "mm"}
+      },
+      {
+        "id": "INS-2026-005",
+        "type": "thermographic",
+        "inspector": "Ana Souza",
+        "date": "2026-07-12T10:20:00-03:00",
+        "result": "attention",
+        "equipment": "Transformador TR-03",
+        "location": "Subestação principal",
+        "summary": "Aquecimento assimétrico observado na fase B.",
+        "measurement": {"label": "Temperatura máxima", "value": 91.6, "unit": "°C"}
+      }
+    ]
+  }
+}
