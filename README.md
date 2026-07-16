@@ -1,11 +1,26 @@
-# Prova técnica Subiter - respostas e aplicativo Flutter
+# Prova técnica Subiter - respostas, Flutter e Qt
 
-Este repositório reúne as quatro respostas da `Prova_Subiter_Rev1.pdf`.
+As quatro respostas da `Prova_Subiter_Rev1.pdf` estão divididas em dois projetos
+irmãos dentro de `/Users/augustobatista/Documents/SUBITER/`:
+
+```text
+SUBITER/
+  subiter_test/        # questões 2 e 4 em Flutter, documentação e PDF
+  subiter_test_c_qt/   # questões 1 e 3 em C++17/Qt 6
+```
 
 ## Entregáveis
 
-- `docs/questao_1.cpp`: modelagem C++/Qt para inspeções termográficas e por ultrassom.
-- `docs/questao_3.cpp`: cadastro e listagem de três equipamentos em C++17.
+- [`question1.h`](../subiter_test_c_qt/question1.h) e
+  [`question1.cpp`](../subiter_test_c_qt/question1.cpp): modelagem C++/Qt para
+  inspeções termográficas e por ultrassom.
+- [`question3.h`](../subiter_test_c_qt/question3.h) e
+  [`question3.cpp`](../subiter_test_c_qt/question3.cpp): cadastro e listagem de
+  três equipamentos.
+- [`main.cpp`](../subiter_test_c_qt/main.cpp): ponto de entrada único que
+  executa as questões 1 e 3.
+- [`CMakeLists.txt`](../subiter_test_c_qt/CMakeLists.txt): configuração CMake
+  do executável Qt.
 - `lib/`: aplicativo Flutter das questões 2 e 4.
 - `assets/mocks/inspections.json`: resposta JSON que simula a API REST.
 - `docs/respostas.md`: justificativas, arquitetura e instruções.
@@ -115,18 +130,51 @@ Para gerar o APK de validação:
 flutter build apk --debug
 ```
 
-## C++
+## Aplicativo C++/Qt - questões 1 e 3
 
-Questão 3:
-
-```bash
-g++ -std=c++17 -Wall -Wextra -Wpedantic docs/questao_3.cpp -o questao_3
-./questao_3
-```
-
-Questão 1 (exemplo usando Qt 6):
+O código C++ não faz parte do projeto Flutter. Ele está no diretório separado:
 
 ```bash
-g++ -std=c++17 docs/questao_1.cpp $(pkg-config --cflags --libs Qt6Core) -o questao_1
-./questao_1
+cd "/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt"
 ```
+
+A estrutura é:
+
+```text
+subiter_test_c_qt/
+  CMakeLists.txt
+  main.cpp
+  question1.h
+  question1.cpp
+  question3.h
+  question3.cpp
+```
+
+O projeto utiliza C++17 e somente o módulo `Qt6::Core`. Existe apenas um
+`main()`, localizado em `main.cpp`; as questões expõem, respectivamente,
+`runQuestion1()` e `runQuestion3()`.
+
+### Executar no Qt Creator
+
+1. Abra [`subiter_test_c_qt/CMakeLists.txt`](../subiter_test_c_qt/CMakeLists.txt)
+   no Qt Creator.
+2. Selecione o kit Qt 6 para macOS e configure o projeto.
+3. Em **Projects > Run > Run Settings**, habilite **Run in terminal**.
+4. Compile e execute o alvo `SubiterInspections`.
+
+A execução em terminal é necessária porque a questão 3 lê os dados com
+`std::cin`. Sem entrada interativa, o programa informa “A entrada de dados foi
+encerrada”.
+
+### Executar pelo Terminal
+
+```bash
+cd "/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt"
+cmake -S . -B build
+cmake --build build
+./build/SubiterInspections
+```
+
+Caso o Qt não seja encontrado pelo CMake no Terminal, informe a instalação do
+Qt em `CMAKE_PREFIX_PATH` ou compile diretamente pelo kit configurado no Qt
+Creator.

@@ -33,7 +33,25 @@ classDiagram
 Aplicações de SOLID/POO: encapsulamento dos atributos, polimorfismo para o
 relatório, SRP em cada modalidade, OCP para novas modalidades, LSP no uso de
 `Inspection` e DIP nos consumidores. A implementação completa está em
-[`questao_1.cpp`](questao_1.cpp).
+`/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt/question1.h` e
+`question1.cpp`. O ponto de entrada está em `subiter_test_c_qt/main.cpp` e o
+projeto é configurado pelo `subiter_test_c_qt/CMakeLists.txt`.
+
+O projeto C++/Qt é separado do aplicativo Flutter. Sua estrutura é:
+
+```text
+/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt/
+  CMakeLists.txt
+  main.cpp
+  question1.h
+  question1.cpp
+  question3.h
+  question3.cpp
+```
+
+Ele utiliza C++17 e `Qt6::Core`. Há somente um `main()`: as implementações das
+atividades expõem `runQuestion1()` e `runQuestion3()`, chamadas pelo arquivo
+`main.cpp`. Essa organização evita símbolos duplicados durante a vinculação.
 
 ## 2. Tela Flutter para listar inspeções consumindo uma API REST simulada
 
@@ -187,7 +205,32 @@ aprovados e APK de depuração compilado com o JSON incluído nos assets.
 `Equipment` encapsula nome, código, ID e descrição. `EquipmentRegistry` mantém
 o limite de três itens e cuida da listagem. A entrada valida ID inteiro positivo
 e aceita espaços nos textos. Após o terceiro cadastro, todos os itens são
-impressos. Código completo: [`questao_3.cpp`](questao_3.cpp).
+impressos.
+
+Os arquivos `question3.h` e `question3.cpp` ficam em:
+
+```text
+/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt
+```
+
+A atividade é iniciada por `runQuestion3()` a partir do único `main.cpp` do
+projeto.
+
+Para executar as questões 1 e 3 no Qt Creator, deve-se abrir
+`subiter_test_c_qt/CMakeLists.txt`, selecionar o kit Qt 6 para macOS e habilitar
+**Projects > Run > Run Settings > Run in terminal**. Essa opção é necessária
+porque a questão 3 recebe ID, código, nome e descrição por `std::cin`. Sem um
+terminal interativo, a entrada termina imediatamente e o tratamento de erro
+exibe “A entrada de dados foi encerrada”.
+
+Execução pelo Terminal:
+
+```bash
+cd "/Users/augustobatista/Documents/SUBITER/subiter_test_c_qt"
+cmake -S . -B build
+cmake --build build
+./build/SubiterInspections
+```
 
 ## 4. Cadastro de atividade em Flutter
 
