@@ -1,7 +1,8 @@
 from pathlib import Path
 
+from PIL import Image as PilImage
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
@@ -9,6 +10,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     HRFlowable,
+    Image,
     KeepTogether,
     PageBreak,
     Paragraph,
@@ -20,6 +22,7 @@ from reportlab.platypus import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+IMAGES = ROOT / "docs" / "images"
 OUTPUT = ROOT / "output" / "pdf" / "Respostas_Prova_Subiter.pdf"
 
 pdfmetrics.registerFont(
@@ -33,9 +36,9 @@ pdfmetrics.registerFont(
 )
 
 GREEN = colors.HexColor("#315C4C")
-LIGHT_GREEN = colors.HexColor("#E3EFEA")
-INK = colors.HexColor("#23302B")
-MUTED = colors.HexColor("#5D6B65")
+LIGHT_GREEN = colors.HexColor("#E7F0EC")
+INK = colors.HexColor("#26332E")
+MUTED = colors.HexColor("#637069")
 CODE_BG = colors.HexColor("#F3F5F4")
 
 styles = getSampleStyleSheet()
@@ -47,7 +50,7 @@ styles.add(
         leading=30,
         textColor=GREEN,
         alignment=TA_CENTER,
-        spaceAfter=12,
+        spaceAfter=10,
     )
 )
 styles.add(
@@ -67,8 +70,7 @@ styles.add(
         fontSize=18,
         leading=22,
         textColor=GREEN,
-        spaceBefore=4,
-        spaceAfter=10,
+        spaceAfter=9,
     )
 )
 styles.add(
@@ -78,7 +80,7 @@ styles.add(
         fontSize=12,
         leading=15,
         textColor=INK,
-        spaceBefore=10,
+        spaceBefore=8,
         spaceAfter=5,
     )
 )
@@ -86,10 +88,10 @@ styles.add(
     ParagraphStyle(
         "BodyCustom",
         fontName="Arial",
-        fontSize=9.3,
-        leading=13.2,
+        fontSize=9.5,
+        leading=13.7,
         textColor=INK,
-        alignment=TA_JUSTIFY,
+        alignment=TA_LEFT,
         spaceAfter=7,
     )
 )
@@ -121,11 +123,28 @@ styles.add(
 )
 styles.add(
     ParagraphStyle(
-        "TableHeader",
-        fontName="Arial-Bold",
-        fontSize=9.3,
-        leading=12,
-        textColor=colors.white,
+        "NoteCustom",
+        parent=styles["BodyCustom"],
+        backColor=LIGHT_GREEN,
+        borderColor=GREEN,
+        borderLeftWidth=2,
+        borderPadding=8,
+        leftIndent=6,
+        rightIndent=6,
+        spaceBefore=4,
+        spaceAfter=8,
+    )
+)
+styles.add(
+    ParagraphStyle(
+        "CaptionCustom",
+        fontName="Arial-Italic",
+        fontSize=8,
+        leading=10,
+        textColor=MUTED,
+        alignment=TA_CENTER,
+        spaceBefore=4,
+        spaceAfter=8,
     )
 )
 
@@ -137,7 +156,7 @@ def header_footer(canvas, document):
     canvas.line(18 * mm, height - 14 * mm, width - 18 * mm, height - 14 * mm)
     canvas.setFont("Arial", 7.5)
     canvas.setFillColor(MUTED)
-    canvas.drawString(18 * mm, height - 10.5 * mm, "Prova técnica Subiter - Respostas")
+    canvas.drawString(18 * mm, height - 10.5 * mm, "Augusto Batista | Prova técnica Subiter")
     canvas.drawRightString(width - 18 * mm, 10 * mm, f"Página {document.page}")
     canvas.restoreState()
 
@@ -151,125 +170,134 @@ def bullet(text):
 
 
 def title(number, text):
-    return [p(f"{number}. {text}", "H1Custom"), HRFlowable(color=GREEN, thickness=1)]
+    return [
+        p(f"{number}. {text}", "H1Custom"),
+        HRFlowable(color=GREEN, thickness=1),
+        Spacer(1, 3 * mm),
+    ]
 
 
 def code(text):
     return Preformatted(text.strip(), styles["CodeCustom"])
 
 
+def scaled_image(path, max_width, max_height):
+    with PilImage.open(path) as source:
+        width, height = source.size
+    scale = min(max_width / width, max_height / height)
+    return Image(str(path), width=width * scale, height=height * scale)
+
+
 def build():
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    doc = SimpleDocTemplate(
+    document = SimpleDocTemplate(
         str(OUTPUT),
         pagesize=A4,
         rightMargin=18 * mm,
         leftMargin=18 * mm,
         topMargin=20 * mm,
         bottomMargin=17 * mm,
-        title="Respostas - Prova Subiter Rev. 1",
+        title="Resolução da Prova Técnica Subiter",
         author="Augusto Batista",
     )
-    story = []
 
-    story += [
-        Spacer(1, 42 * mm),
+    story = [
+        Spacer(1, 40 * mm),
         p("PROVA TÉCNICA SUBITER", "CoverTitle"),
-        p("Respostas completas - Revisão 1", "CoverSub"),
-        Spacer(1, 14 * mm),
-        HRFlowable(width="65%", color=GREEN, thickness=2, hAlign="CENTER"),
-        Spacer(1, 12 * mm),
+        p("Resolução das atividades", "CoverSub"),
+        Spacer(1, 13 * mm),
+        HRFlowable(width="62%", color=GREEN, thickness=2, hAlign="CENTER"),
+        Spacer(1, 13 * mm),
+        p("Augusto Batista", "CoverTitle"),
+        p("Implementações em C++/Qt e Flutter", "CoverSub"),
+        Spacer(1, 10 * mm),
         p(
-            "Soluções em C++/Qt e Flutter, com POO, SOLID, Clean Code, "
-            "Clean Architecture, MVVM, Provider/ChangeNotifier, GoRouter, "
-            "GetIt, i18n e SQLite.",
+            'Código-fonte: <link href="https://github.com/Augustob790/Subiter_test" '
+            'color="#315C4C"><u>github.com/Augustob790/Subiter_test</u></link>',
             "CoverSub",
         ),
-        Spacer(1, 52 * mm),
+        Spacer(1, 14 * mm),
+        p(
+            "Neste documento apresento as decisões que tomei em cada atividade, "
+            "os pontos principais do código e a forma de executar os dois projetos.",
+            "CoverSub",
+        ),
+        Spacer(1, 34 * mm),
         p("15 de julho de 2026", "CoverSub"),
         PageBreak(),
     ]
 
-    story += title("1", "Gerenciamento de inspeções industriais em C++ e Qt")
+    story += title("1", "Inspeções industriais em C++ e Qt")
     story += [
-        p("a) Modelagem da solução" , "H2Custom"),
+        p("Como organizei a solução", "H2Custom"),
         p(
-            "A solução usa uma classe abstrata <b>Inspection</b> para os dados e "
-            "o contrato comuns: ID, inspetor, data, resultado e geração de relatório. "
-            "As classes <b>ThermographicInspection</b> e "
-            "<b>UltrasoundInspection</b> especializam apenas o dado e a regra de "
-            "relatório próprios de cada modalidade. Os consumidores trabalham com "
-            "ponteiros para a abstração, permitindo polimorfismo em tempo de execução."
+            "Optei por concentrar os dados comuns em <b>Inspection</b>: código, "
+            "inspetor, data e resultado. Ela é abstrata porque uma inspeção genérica "
+            "não tem relatório próprio. Quem define esse conteúdo são "
+            "<b>ThermographicInspection</b> e <b>UltrasoundInspection</b>."
         ),
-        p("b) Diagrama de classes", "H2Custom"),
+        p(
+            "O método <b>commonReportData()</b> evita repetir a montagem do cabeçalho. "
+            "Cada classe derivada acrescenta somente sua medição: temperatura máxima "
+            "ou espessura. Assim, se surgir outro tipo de inspeção, basta criar uma "
+            "nova classe e implementar <b>generateReport()</b>."
+        ),
+        p("Visão das classes", "H2Custom"),
+        KeepTogether(
+            [
+                scaled_image(
+                    IMAGES / "inspection_uml.png",
+                    160 * mm,
+                    87 * mm,
+                ),
+                p(
+                    "Diagrama de classes usado na modelagem das inspeções.",
+                    "CaptionCustom",
+                ),
+            ]
+        ),
+        p("Uso do polimorfismo", "H2Custom"),
         code("""
-                 +------------------------------+
-                 | Inspection (abstrata)        |
-                 | id, inspector, date, result  |
-                 | + generateReport(): QString  |
-                 +---------------+--------------+
-                                 |
-                   +-------------+-------------+
-                   |                           |
- +-----------------v--------------+  +---------v--------------------+
- | ThermographicInspection        |  | UltrasoundInspection         |
- | maximumTemperatureCelsius      |  | measuredThicknessMillimeters |
- | + generateReport(): QString    |  | + generateReport(): QString  |
- +--------------------------------+  +------------------------------+
-"""),
-        p("Decisões de projeto", "H2Custom"),
-        bullet("Encapsulamento: atributos privados e dados comuns protegidos pela classe-base."),
-        bullet("SRP: cada modalidade conhece somente a geração de seu relatório."),
-        bullet("OCP/LSP: novos tipos podem implementar o contrato sem quebrar os consumidores."),
-        bullet("DIP: a aplicação depende de Inspection, e não das classes concretas."),
-        bullet("Qt: QString, QDate, QCoreApplication e qInfo integram a solução ao framework."),
-        p("Trecho central", "H2Custom"),
-        code("""
-class Inspection {
-public:
-    virtual ~Inspection() = default;
-    virtual QString generateReport() const = 0;
-protected:
-    QString commonReportData() const;
-private:
-    QString id_, inspector_, result_;
-    QDate date_;
-};
+std::vector<std::unique_ptr<Inspection>> inspections;
+inspections.push_back(
+    std::make_unique<ThermographicInspection>(/* dados */));
+inspections.push_back(
+    std::make_unique<UltrasoundInspection>(/* dados */));
 
-class ThermographicInspection final : public Inspection {
-public:
-    QString generateReport() const override;
-private:
-    double maximumTemperatureCelsius_;
-};
-
-class UltrasoundInspection final : public Inspection {
-public:
-    QString generateReport() const override;
-private:
-    double measuredThicknessMillimeters_;
-};
+for (const auto &inspection : inspections) {
+    qInfo().noquote() << inspection->generateReport();
+}
 """),
         p(
-            "A implementação C++/Qt completa, incluindo construtores, relatórios e "
-            "exemplo de uso polimórfico, está em "
-            "<b>subiter_test_c_qt/question1.h</b> e "
-            "<b>subiter_test_c_qt/question1.cpp</b>. O executável usa o único "
-            "ponto de entrada definido em <b>subiter_test_c_qt/main.cpp</b>."
+            "Esse trecho é o que demonstra o polimorfismo de fato: o laço conhece "
+            "somente <b>Inspection</b>, mas cada objeto gera o relatório correto. "
+            "O uso de <b>unique_ptr</b> também deixa clara a propriedade dos objetos "
+            "e evita gerenciamento manual de memória."
+        ),
+        p(
+            "Em termos de SOLID, a decisão mais relevante aqui é manter o consumidor "
+            "dependente da abstração. SRP, OCP e LSP aparecem como consequência dessa "
+            "modelagem, e não como camadas adicionais sem necessidade."
+        ),
+        p(
+            "Código: <b>subiter_test_c_qt/question1.h</b> e "
+            "<b>subiter_test_c_qt/question1.cpp</b>. O único <b>main()</b> do projeto "
+            "fica em <b>subiter_test_c_qt/main.cpp</b>.",
+            "NoteCustom",
         ),
         PageBreak(),
     ]
 
-    story += title("2", "Lista de inspeções consumindo API REST simulada")
+    story += title("2", "Lista de inspeções consumindo uma API REST simulada")
     story += [
-        p("Comportamento entregue", "H2Custom"),
+        p("O que foi implementado", "H2Custom"),
         p(
-            "O aplicativo lista inspeções termográficas e por ultrassom. O arquivo "
-            "<b>assets/mocks/inspections.json</b> simula o retorno de uma API REST "
-            "com statusCode, message e data.inspections. Cada card apresenta ID, "
-            "tipo, equipamento, inspetor, data, local, resultado, resumo e medição."
+            "Como não havia um backend para o exercício, usei "
+            "<b>assets/mocks/inspections.json</b> como resposta da API. O arquivo "
+            "mantém um envelope parecido com o de um endpoint real, com statusCode, "
+            "message e data.inspections. A intenção foi exercitar o mesmo parsing e "
+            "o mesmo tratamento de falhas que eu usaria com uma chamada HTTP."
         ),
-        p("Contrato JSON simulado", "H2Custom"),
         code("""
 {
   "statusCode": 200,
@@ -277,95 +305,86 @@ private:
   "data": { "inspections": [ ... ] }
 }
 """),
-        p("Arquitetura e fluxo", "H2Custom"),
-        code("""
-InspectionsScreen -> InspectionsViewModel (ChangeNotifier)
-  -> GetInspectionsUseCase
-  -> InspectionsRepository (contrato do domínio)
-  -> InspectionsRepositoryImpl
-       |-> JsonInspectionsRemoteDataSource -> JSON/REST simulado
-       +-> SqliteInspectionsLocalDataSource -> SQLite
-"""),
-        p("Separação entre interface e lógica", "H2Custom"),
-        bullet("UI: InspectionsScreen e InspectionCard apenas renderizam e encaminham ações."),
-        bullet("ViewModel: coordena o caso de uso e expõe estado e lista tipada."),
-        bullet("Domain: InspectionModel, enums, contrato do repositório e caso de uso."),
-        bullet("Infra: data model, parsing do JSON, SQLite e implementação do repositório."),
-        bullet("Injeção: GetIt cria clientes, fontes, repositórios, casos de uso e ViewModels."),
-        bullet("Navegação: rota nomeada /inspections integrada ao GoRouter."),
-        p("Gerenciamento de estado", "H2Custom"),
+        p("Separação entre tela e lógica", "H2Custom"),
         p(
-            "O ViewModel estende ChangeNotifier e é fornecido por Provider. Expõe "
-            "<b>initial, loading, success, empty e error</b>. A tela usa Consumer, "
-            "mostra progresso, lista, estado vazio ou erro e oferece pull-to-refresh."
+            "A tela apenas observa o <b>InspectionsViewModel</b> pelo Provider. Ela "
+            "não abre o JSON, não consulta SQLite e não conhece o formato externo. "
+            "O ViewModel chama <b>GetInspectionsUseCase</b>, que depende do contrato "
+            "<b>InspectionsRepository</b>. A implementação concreta fica em infra."
         ),
-        p("Trecho do ViewModel", "H2Custom"),
         code("""
-Future<void> getInspections() async {
-  if (isLoading) return;
-  _state = InspectionsViewState.loading;
-  notifyListeners();
-  try {
-    final response = await _getInspectionsUseCase();
-    _inspections = response.inspections;
-    _state = _inspections.isEmpty
-        ? InspectionsViewState.empty
-        : InspectionsViewState.success;
-  } on Object {
-    _state = InspectionsViewState.error;
-  }
-  notifyListeners();
-}
+InspectionsScreen
+  -> InspectionsViewModel (ChangeNotifier)
+  -> GetInspectionsUseCase
+  -> InspectionsRepository
+  -> JSON simulado + cache SQLite
 """),
-        p("Tratamento de erros", "H2Custom"),
+        p("Estado e erros", "H2Custom"),
         p(
-            "A fonte valida status HTTP simulado, envelope, lista e campos "
-            "obrigatórios. Payload inválido vira DataException na infraestrutura. "
-            "Em falha, o repositório tenta o cache SQLite; sem cache, o ViewModel "
-            "expõe error e a tela apresenta mensagem amigável e Tentar novamente. "
-            "Uma API HTTP real pode substituir apenas o RemoteDataSource."
+            "Mantive estados explícitos para <b>initial</b>, <b>loading</b>, "
+            "<b>success</b>, <b>empty</b> e <b>error</b>. Isso deixa o build da tela "
+            "previsível: cada estado tem uma representação e o botão de nova tentativa "
+            "apenas dispara o carregamento novamente."
+        ),
+        p(
+            "No repositório, primeiro tento a fonte que simula o servidor. Quando a "
+            "resposta é válida, substituo o cache SQLite. Se a leitura falhar, procuro "
+            "a última lista salva. Só devolvo erro para a tela quando também não há "
+            "cache. Preferi esse fluxo porque ele mantém a listagem útil mesmo em uma "
+            "falha temporária."
+        ),
+        p(
+            "Para trocar o mock por uma API real, seria necessário substituir somente "
+            "a implementação de <b>InspectionsRemoteDataSource</b>. Tela, ViewModel, "
+            "caso de uso e domínio permanecem iguais.",
+            "NoteCustom",
+        ),
+        PageBreak(),
+        p("Resultado da questão 2", "H1Custom"),
+        Spacer(1, 4 * mm),
+        scaled_image(IMAGES / "inspections_list.png", 82 * mm, 178 * mm),
+        p(
+            "Lista carregada a partir do contrato JSON, com tipo, resultado, "
+            "responsável, local e medição de cada inspeção.",
+            "CaptionCustom",
         ),
         PageBreak(),
     ]
 
     story += title("3", "Cadastro de três equipamentos em C++")
     story += [
+        p("Escolha da estrutura", "H2Custom"),
         p(
-            "A classe <b>Equipment</b> representa nome, código, ID e descrição. "
-            "A classe <b>EquipmentRegistry</b> tem responsabilidade exclusiva de "
-            "armazenar no máximo três equipamentos e listá-los. A leitura exige "
-            "texto não vazio, aceita espaços e valida ID inteiro positivo."
+            "O enunciado limita o cadastro a exatamente três equipamentos. Por isso, "
+            "usei um <b>std::array</b> com capacidade fixa em vez de um vector que "
+            "cresceria sem limite. Cada posição é um <b>std::optional&lt;Equipment&gt;</b>, "
+            "pois um espaço ainda não preenchido não deve ser representado por um "
+            "equipamento falso com ID zero e textos vazios."
         ),
         code("""
-class Equipment {
-public:
-    Equipment(int id, std::string code,
-              std::string name, std::string description);
-    int id() const;
-    const std::string& code() const;
-    const std::string& name() const;
-    const std::string& description() const;
-private:
-    int id_;
-    std::string code_, name_, description_;
-};
-
-class EquipmentRegistry {
+class EquipmentRegistry final {
 public:
     static constexpr std::size_t capacity = 3;
     void add(Equipment equipment);
-    void list(std::ostream& output) const;
+    void list(std::ostream &output) const;
 private:
-    std::array<Equipment, capacity> equipments_;
+    std::array<std::optional<Equipment>, capacity> equipments_;
     std::size_t size_ = 0;
 };
 """),
-        p("Algoritmo", "H2Custom"),
-        bullet("Criar EquipmentRegistry com capacidade fixa igual a três."),
-        bullet("Repetir três vezes: ler ID, código, nome e descrição; validar; criar Equipment."),
-        bullet("Adicionar a entidade ao registro e impedir inserção além da capacidade."),
-        bullet("Ao final, percorrer os três objetos e imprimir todos os atributos."),
-        p("Compilação", "H2Custom"),
+        p("Validação da entrada", "H2Custom"),
+        p(
+            "O ID só é aceito quando é inteiro e positivo. Em uma entrada inválida, "
+            "limpo o estado de <b>std::cin</b> e descarto o restante da linha antes de "
+            "pedir o valor novamente. Código, nome e descrição são lidos com getline, "
+            "portanto aceitam espaços, mas não podem ficar vazios."
+        ),
+        p(
+            "Também tratei o fim da entrada. Foi esse caso que apareceu quando o Qt "
+            "Creator executou o programa sem terminal interativo; por isso o projeto "
+            "mostrou a mensagem “A entrada de dados foi encerrada”."
+        ),
+        p("Como executar", "H2Custom"),
         code("""
 cd subiter_test_c_qt
 cmake -S . -B build
@@ -373,127 +392,115 @@ cmake --build build
 ./build/SubiterInspections
 """),
         p(
-            "O programa completo está em "
-            "<b>subiter_test_c_qt/question3.h</b> e "
-            "<b>subiter_test_c_qt/question3.cpp</b>. No Qt Creator, a opção "
-            "<b>Run in terminal</b> deve estar habilitada porque a atividade usa "
-            "entrada interativa com std::cin."
+            "No Qt Creator, habilite <b>Projects &gt; Run &gt; Run Settings &gt; "
+            "Run in terminal</b>. A questão 3 depende dessa opção para receber os "
+            "dados digitados.",
+            "NoteCustom",
+        ),
+        p(
+            "Código: <b>subiter_test_c_qt/question3.h</b> e "
+            "<b>subiter_test_c_qt/question3.cpp</b>."
         ),
         PageBreak(),
     ]
 
     story += title("4", "Cadastro de atividade em Flutter")
     story += [
+        p("Organização da funcionalidade", "H2Custom"),
         p(
-            "A rota <b>/activities/register</b> apresenta os campos Nome da empresa "
-            "e Local, ambos obrigatórios, e o botão Cadastrar. O formulário mantém "
-            "TextEditingControllers na camada de apresentação e os descarta em "
-            "dispose(). Após a validação, o ViewModel executa RegisterActivity."
+            "A tela pede nome da empresa e local. Mantive <b>Activity</b> como nome da "
+            "entidade de domínio, seguindo o enunciado, e agrupei as telas no módulo "
+            "<b>companies</b>, que é como a funcionalidade aparece para o usuário."
         ),
-        p("Fluxo Clean Architecture/MVVM", "H2Custom"),
+        p(
+            "Ao tocar em Cadastrar, a página envia os valores para "
+            "<b>ActivityRegistrationViewModel</b>. O ViewModel não grava no banco "
+            "diretamente: ele chama <b>RegisterActivity</b>, que remove espaços nas "
+            "extremidades, valida os dois campos e usa o contrato "
+            "<b>ActivitiesRepository</b>. A implementação desse contrato persiste o "
+            "registro na tabela activities do SQLite."
+        ),
         code("""
 ActivityRegistrationPage
-  -> ActivityRegistrationViewModel (ChangeNotifier)
-  -> RegisterActivity (valida e normaliza)
-  -> ActivitiesRepository (contrato)
+  -> ActivityRegistrationViewModel
+  -> RegisterActivity
+  -> ActivitiesRepository
   -> ActivitiesRepositoryImpl
-  -> SQLite / tabela activities
+  -> SQLite
 """),
+        p("Comportamento da tela", "H2Custom"),
         p(
-            "O caso de uso remove espaços externos, cria a entidade Activity e "
-            "persiste empresa, local e data do cadastro. O ViewModel expõe os estados "
-            "initial, saving, success e failure. Durante a gravação, o botão é "
-            "desabilitado para evitar duplicidade."
+            "Durante a gravação, o estado passa para <b>saving</b> e novas submissões "
+            "são bloqueadas. Em caso de sucesso, o objeto salvo fica disponível para "
+            "montar a confirmação com os dados realmente digitados. Em caso de falha, "
+            "a tela recebe um estado próprio e continua responsável apenas por mostrar "
+            "a mensagem adequada."
         ),
-        p("Trecho do caso de uso", "H2Custom"),
-        code("""
-Future<Activity> call({
-  required String companyName,
-  required String location,
-}) {
-  final company = companyName.trim();
-  final place = location.trim();
-  if (company.isEmpty || place.isEmpty) {
-    throw const FormatException('Campos obrigatórios não informados.');
-  }
-  return _repository.save(Activity(
-    companyName: company,
-    location: place,
-    createdAt: DateTime.now(),
-  ));
-}
-"""),
-        p("Resultado exibido", "H2Custom"),
-        Table(
-            [[p("<b>Cadastro realizado com sucesso!</b><br/>"
-                 "Empresa: ABC Engenharia - Local: São José dos Campos")]],
-            colWidths=[155 * mm],
-            style=TableStyle([
-                ("BACKGROUND", (0, 0), (-1, -1), LIGHT_GREEN),
-                ("BOX", (0, 0), (-1, -1), 0.8, GREEN),
-                ("LEFTPADDING", (0, 0), (-1, -1), 12),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 12),
-                ("TOPPADDING", (0, 0), (-1, -1), 12),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
-            ])),
-        Spacer(1, 8),
         p(
-            "A mensagem usa os valores realmente digitados. Textos de interface "
-            "são obtidos pelo catálogo i18n, e o GoRouter/GetIt fazem navegação e "
-            "injeção sem acoplar a página à infraestrutura."
+            "A mesma tela também recebe um item selecionado para edição. A listagem "
+            "permite atualizar e excluir registros, sempre passando pelas classes do "
+            "módulo em vez de acessar o banco a partir do widget."
+        ),
+        p(
+            "Rotas: <b>/activities</b> para a lista e "
+            "<b>/activities/register</b> para o formulário. Os textos visíveis usam o "
+            "catálogo de internacionalização e as dependências são registradas no GetIt.",
+            "NoteCustom",
         ),
         PageBreak(),
+        p("Resultado da questão 4", "H1Custom"),
+        Spacer(1, 5 * mm),
     ]
 
-    story += title("5", "Mapa da entrega e validação")
-    rows = [
-        [p("Item", "TableHeader"), p("Local", "TableHeader")],
-        [p("Aplicação/rotas"), p("lib/app/")],
-        [p("i18n, banco e injeção"), p("lib/core/")],
-        [p("Questão 2"), p("lib/modules/inspections/")],
-        [p("JSON REST simulado"), p("assets/mocks/inspections.json")],
-        [p("Questão 4"), p("lib/modules/activities/")],
-        [p("Questões 1 e 3"), p("subiter_test_c_qt/question1.* e question3.*")],
-        [p("Testes"), p("test/")],
-    ]
-    table = Table(rows, colWidths=[48 * mm, 107 * mm], repeatRows=1)
-    table.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), GREEN),
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-        ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#C9D2CE")),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("LEFTPADDING", (0, 0), (-1, -1), 8),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 7),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
-    ]))
+    companies_image = scaled_image(
+        IMAGES / "companies_list.png", 74 * mm, 166 * mm
+    )
+    registration_image = scaled_image(
+        IMAGES / "company_registration.png", 74 * mm, 166 * mm
+    )
+    evidence = Table(
+        [
+            [companies_image, registration_image],
+            [
+                p("Lista com registro persistido.", "CaptionCustom"),
+                p("Formulário de cadastro.", "CaptionCustom"),
+            ],
+        ],
+        colWidths=[78 * mm, 78 * mm],
+        hAlign="CENTER",
+    )
+    evidence.setStyle(
+        TableStyle(
+            [
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 2 * mm),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 2 * mm),
+                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 1 * mm),
+            ]
+        )
+    )
     story += [
-        table,
-        Spacer(1, 14),
-        p("Comandos de validação executados", "H2Custom"),
-        code("""
-flutter analyze
-flutter test
-cmake -S subiter_test_c_qt -B subiter_test_c_qt/build
-cmake --build subiter_test_c_qt/build
-"""),
-        bullet("Análise estática Flutter: sem problemas."),
-        bullet("Testes automatizados: parsing, estados das inspeções, erros e cadastro validados."),
-        bullet("Questão 3: compilada com avisos rigorosos e executada com três registros."),
-        bullet("PDF final: renderizado e inspecionado página a página."),
-        p("Execução do aplicativo", "H2Custom"),
-        code("""
-flutter pub get
-flutter run
-"""),
+        KeepTogether([evidence]),
+        Spacer(1, 5 * mm),
         p(
-            "A arquitetura usa abstrações apenas onde há fronteiras reais (API, SQLite "
-            "e casos de uso), evitando classes artificiais. Isso mantém SOLID e Clean "
-            "Architecture de forma prática, legível e testável."
+            "Os projetos são independentes na execução, mas ficam no mesmo "
+            "repositório: Flutter na raiz e C++/Qt em "
+            "<b>subiter_test_c_qt/</b>."
+        ),
+        p(
+            'Código completo: <link href="https://github.com/Augustob790/Subiter_test" '
+            'color="#315C4C"><u>github.com/Augustob790/Subiter_test</u></link>',
+            "NoteCustom",
         ),
     ]
 
-    doc.build(story, onFirstPage=header_footer, onLaterPages=header_footer)
+    document.build(
+        story,
+        onFirstPage=header_footer,
+        onLaterPages=header_footer,
+    )
 
 
 if __name__ == "__main__":
