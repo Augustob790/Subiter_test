@@ -50,6 +50,10 @@ arquivo possui envelope HTTP simulado:
 }
 ```
 
+Cada item contém `id`, `type`, `inspector`, `date`, `result`, `equipment`,
+`location`, `summary` e `measurement`. Assim, o exercício reproduz o contrato e
+o parsing de uma API sem depender de servidor ou conexão externa.
+
 O módulo segue o padrão do `precificakm-mobile`:
 
 ```text
@@ -81,12 +85,49 @@ lib/modules/inspections/
   detalhes externos vazem para a interface.
 - `InspectionsRepositoryImpl` coordena a fonte simulada e o cache SQLite.
 
+Fluxo de dependências:
+
+```mermaid
+flowchart LR
+    UI[InspectionsScreen] --> VM[InspectionsViewModel]
+    VM --> UC[GetInspectionsUseCase]
+    UC --> RP[InspectionsRepository]
+    RI[InspectionsRepositoryImpl] -. implementa .-> RP
+    RI --> JSON[JSON REST simulado]
+    RI --> DB[(SQLite)]
+```
+
+As dependências apontam para as abstrações do domínio. A tela não importa o
+data source, o modelo de infraestrutura ou o banco de dados.
+
 ### Gerenciamento de estado
 
 O ViewModel estende `ChangeNotifier`, é fornecido por `Provider` e expõe os
 estados `initial`, `loading`, `success`, `empty` e `error`. A tela usa
 `Consumer<InspectionsViewModel>` e mostra progress indicator, lista,
 estado vazio ou erro. O pull-to-refresh chama `getInspections()` novamente.
+
+```dart
+Future<void> getInspections() async {
+  if (isLoading) return;
+
+  _state = InspectionsViewState.loading;
+  notifyListeners();
+
+  try {
+    final response = await _getInspectionsUseCase();
+    _inspections = response.inspections;
+    _isFromCache = response.fromCache;
+    _state = _inspections.isEmpty
+        ? InspectionsViewState.empty
+        : InspectionsViewState.success;
+  } on Object {
+    _state = InspectionsViewState.error;
+  }
+
+  notifyListeners();
+}
+```
 
 ### Tratamento de erros
 
@@ -97,8 +138,35 @@ estado vazio ou erro. O pull-to-refresh chama `getInspections()` novamente.
 - A tela exibe mensagem amigável e o botão “Tentar novamente”; nenhuma exceção
   técnica chega aos widgets.
 
+No carregamento bem-sucedido, o repositório substitui o conteúdo da tabela
+`inspections`. O objeto `InspectionsResult` informa se a resposta veio do cache,
+permitindo que a interface apresente o aviso “Exibindo os dados salvos no
+dispositivo”.
+
+```dart
+try {
+  final response = await _remoteDataSource.getInspections();
+  await _localDataSource.replaceInspections(response);
+  return InspectionsResult(_toDomain(response), fromCache: false);
+} on Object {
+  final cached = await _localDataSource.getInspections();
+  if (cached.isEmpty) rethrow;
+  return InspectionsResult(_toDomain(cached), fromCache: true);
+}
+```
+
 Trocar o JSON por uma API real exige somente outra implementação de
 `InspectionsRemoteDataSource`, preservando UI, ViewModel, caso de uso e domínio.
+
+### Tecnologias e princípios aplicados
+
+- MVVM com Provider e ChangeNotifier;
+- GetIt para injeção de dependências;
+- GoRouter para navegação;
+- SQLite para cache e funcionamento após falha da fonte simulada;
+- i18n para os textos da interface;
+- POO, SOLID, Clean Code e Clean Architecture;
+- testes do data model e dos estados do ViewModel.
 
 ## 3. Cadastro de três equipamentos em C++
 

@@ -12,19 +12,16 @@ class ActivitiesListPage extends StatefulWidget {
 }
 
 class _ActivitiesListPageState extends State<ActivitiesListPage> {
-  late final ActivitiesListViewModel _viewModel;
-  late final AppNavigator _navigator;
+  ActivitiesListViewModel viewModel = IoD.instance.get<ActivitiesListViewModel>();
+  AppNavigator navigator = IoD.instance.get<AppNavigator>();
 
   @override
   void initState() {
     super.initState();
-    _viewModel = IoD.instance.get<ActivitiesListViewModel>();
-    _navigator = IoD.instance.get<AppNavigator>();
-    
-    // Ensure data is fetched when screen is loaded
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_viewModel.state == ActivitiesListState.loading && _viewModel.activities.isEmpty) {
-        _viewModel.fetch();
+      if (viewModel.state == ActivitiesListState.loading && viewModel.activities.isEmpty) {
+        viewModel.fetch();
       }
     });
   }
@@ -34,9 +31,9 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Atividades')),
       body: ListenableBuilder(
-        listenable: _viewModel,
+        listenable: viewModel,
         builder: (BuildContext context, Widget? child) {
-          return switch (_viewModel.state) {
+          return switch (viewModel.state) {
             ActivitiesListState.loading => const Center(child: CircularProgressIndicator()),
             ActivitiesListState.empty => const Center(child: Text('Nenhuma atividade cadastrada.')),
             ActivitiesListState.error => Center(
@@ -45,17 +42,17 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
                 children: <Widget>[
                   const Text('Erro ao carregar as atividades.'),
                   const SizedBox(height: 12),
-                  FilledButton(onPressed: _viewModel.fetch, child: const Text('Tentar novamente')),
+                  FilledButton(onPressed: viewModel.fetch, child: const Text('Tentar novamente')),
                 ],
               ),
             ),
             ActivitiesListState.success => RefreshIndicator(
-              onRefresh: _viewModel.fetch,
+              onRefresh: viewModel.fetch,
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: _viewModel.activities.length,
+                itemCount: viewModel.activities.length,
                 itemBuilder: (BuildContext context, int index) {
-                  final activity = _viewModel.activities[index];
+                  final activity = viewModel.activities[index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 16),
                     child: ListTile(
@@ -68,10 +65,10 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.blue),
                             onPressed: () async {
-                              _viewModel.setSelectedActivity(activity);
-                              await _navigator.push(AppRoutes.activityRegister);
+                              viewModel.setSelectedActivity(activity);
+                              await navigator.push(AppRoutes.activityRegister);
                               if (mounted) {
-                                _viewModel.fetch();
+                                viewModel.fetch();
                               }
                             },
                           ),
@@ -91,10 +88,10 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          _viewModel.setSelectedActivity(null);
-          await _navigator.push(AppRoutes.activityRegister);
+          viewModel.setSelectedActivity(null);
+          await navigator.push(AppRoutes.activityRegister);
           if (mounted) {
-            _viewModel.fetch();
+            viewModel.fetch();
           }
         },
         icon: const Icon(Icons.add),
@@ -110,14 +107,11 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
         title: const Text('Excluir Atividade'),
         content: const Text('Tem certeza que deseja excluir esta atividade?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _viewModel.deleteActivity(id);
+              viewModel.deleteActivity(id);
             },
             child: const Text('Excluir', style: TextStyle(color: Colors.red)),
           ),

@@ -25,9 +25,6 @@ class ActivityRegistrationViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       if (id != null) {
-        // Obter data de criacao existente seria ideal, mas para simplificar
-        // usamos a data atual no update, ou passamos a atividade inteira
-        // Vamos usar a data de agora, ja que o backend/SQLite seria a fonte da verdade ideal.
         _activity = await _updateActivity(
           id: id,
           companyName: companyName,
