@@ -6,14 +6,14 @@ import '../router.dart';
 
 import 'iod.dart';
 
-import '../../modules/activities/data/activities_repository_impl.dart';
-import '../../modules/activities/domain/repositories/activities_repository.dart';
-import '../../modules/activities/domain/use_cases/delete_activity.dart';
-import '../../modules/activities/domain/use_cases/get_activities.dart';
-import '../../modules/activities/domain/use_cases/register_activity.dart';
-import '../../modules/activities/domain/use_cases/update_activity.dart';
-import '../../modules/activities/ui/activities_list_view_model.dart';
-import '../../modules/activities/ui/activity_registration_view_model.dart';
+import '../../modules/companies/infra/repositories/activities_repository_impl.dart';
+import '../../modules/companies/domain/repositories/activities_repository.dart';
+import '../../modules/companies/domain/usecases/delete_activity.dart';
+import '../../modules/companies/domain/usecases/get_activities.dart';
+import '../../modules/companies/domain/usecases/register_activity.dart';
+import '../../modules/companies/domain/usecases/update_activity.dart';
+import '../../modules/companies/ui/activities_list_view_model.dart';
+import '../../modules/companies/ui/activity_registration_view_model.dart';
 import '../../modules/inspections/domain/repositories/inspections_repository.dart';
 import '../../modules/inspections/domain/usecases/get_inspections_usecase.dart';
 import '../../modules/inspections/infra/data_sources/inspections_local_data_source.dart';

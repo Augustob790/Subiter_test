@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../domain/entities/activity.dart';
-import '../domain/use_cases/delete_activity.dart';
-import '../domain/use_cases/get_activities.dart';
+import '../domain/models/activity.dart';
+import '../domain/usecases/delete_activity.dart';
+import '../domain/usecases/get_activities.dart';
 
 enum ActivitiesListState { loading, success, error, empty }
 

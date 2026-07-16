@@ -1,4 +1,4 @@
-import '../entities/activity.dart';
+import '../models/activity.dart';
 
 abstract interface class ActivitiesRepository {
   Future<Activity> save(Activity activity);

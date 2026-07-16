@@ -1,4 +1,4 @@
-import '../entities/activity.dart';
+import '../models/activity.dart';
 import '../repositories/activities_repository.dart';
 
 class RegisterActivity {

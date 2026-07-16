@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:subiter_test/core/navigator/app_navigator.dart';
 
 import '../../../core/di/iod.dart';
 import '../../../core/i18n/app_localizations.dart';
@@ -19,6 +20,7 @@ class _ActivityRegistrationPageState extends State<ActivityRegistrationPage> {
 
   final ActivityRegistrationViewModel _activityRegistrationViewModel = IoD.instance
       .get<ActivityRegistrationViewModel>();
+  AppNavigator navigator = IoD.instance.get<AppNavigator>();
   late final ActivitiesListViewModel _listViewModel;
   int? _editingId;
 
@@ -45,7 +47,7 @@ class _ActivityRegistrationPageState extends State<ActivityRegistrationPage> {
   Widget build(BuildContext context) {
     final isEditing = _editingId != null;
     return Scaffold(
-      appBar: AppBar(title: Text(isEditing ? 'Editar Atividade' : context.l10n.text('activityTitle'))),
+      appBar: AppBar(title: Text(isEditing ? 'Editar Empresa' : 'Cadastro de Empresa')),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -87,43 +89,12 @@ class _ActivityRegistrationPageState extends State<ActivityRegistrationPage> {
                 listenable: _activityRegistrationViewModel,
                 builder: (BuildContext context, Widget? child) {
                   final ActivityRegistrationViewModel viewModel = _activityRegistrationViewModel;
-                  final activity = viewModel.activity;
                   if (viewModel.status == ActivityRegistrationStatus.failure) {
                     return const Card(
                       child: Padding(padding: EdgeInsets.all(16), child: Text('Não foi possível salvar o cadastro.')),
                     );
                   }
-                  if (viewModel.status != ActivityRegistrationStatus.success || activity == null) {
-                    return const SizedBox.shrink();
-                  }
-                  return Card(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              const Icon(Icons.check_circle),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  context.l10n.text('success'),
-                                  style: Theme.of(context).textTheme.titleMedium,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Empresa: ${activity.companyName} - '
-                            'Local: ${activity.location}',
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  return const SizedBox.shrink();
                 },
               ),
             ],
@@ -143,5 +114,9 @@ class _ActivityRegistrationPageState extends State<ActivityRegistrationPage> {
       companyName: _companyController.text,
       location: _locationController.text,
     );
+    if (!mounted) return;
+    if (_activityRegistrationViewModel.status == ActivityRegistrationStatus.success) {
+      navigator.pop(result: true);
+    }
   }
 }

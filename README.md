@@ -27,7 +27,6 @@ Funcionalidades disponíveis:
 - nova tentativa quando o carregamento falha;
 - cadastro de atividade com validação e persistência em SQLite.
 
-Arquitetura baseada no padrão do `precificakm-mobile`:
 
 - módulo organizado em `domain/`, `infra/` e `ui/`;
 - MVVM com `ChangeNotifier` e `Provider`;
@@ -102,6 +101,13 @@ flutter test
 
 Os testes cobrem parsing do payload, conversão para o domínio, estados de
 sucesso/vazio/erro do ViewModel e validação do cadastro de atividade.
+
+Resultado da última validação:
+
+- `flutter analyze`: nenhuma inconsistência encontrada;
+- `flutter test`: 7 testes aprovados;
+- `flutter build apk --debug`: compilação concluída;
+- APK: `build/app/outputs/flutter-apk/app-debug.apk`.
 
 Para gerar o APK de validação:
 

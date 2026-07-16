@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-import '../domain/entities/activity.dart';
-import '../domain/use_cases/register_activity.dart';
-import '../domain/use_cases/update_activity.dart';
+import '../domain/models/activity.dart';
+import '../domain/usecases/register_activity.dart';
+import '../domain/usecases/update_activity.dart';
 
 enum ActivityRegistrationStatus { initial, saving, success, failure }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/di/iod.dart';
 import '../../../core/navigator/app_navigator.dart';
-import '../../../core/router.dart';
+import '../activities_routes.dart';
 import 'activities_list_view_model.dart';
 
 class ActivitiesListPage extends StatefulWidget {
@@ -29,18 +29,18 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Atividades')),
+      appBar: AppBar(title: const Text('Empresas')),
       body: ListenableBuilder(
         listenable: viewModel,
         builder: (BuildContext context, Widget? child) {
           return switch (viewModel.state) {
             ActivitiesListState.loading => const Center(child: CircularProgressIndicator()),
-            ActivitiesListState.empty => const Center(child: Text('Nenhuma atividade cadastrada.')),
+            ActivitiesListState.empty => const Center(child: Text('Nenhuma empresa cadastrada.')),
             ActivitiesListState.error => Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Text('Erro ao carregar as atividades.'),
+                  const Text('Erro ao carregar as empresas.'),
                   const SizedBox(height: 12),
                   FilledButton(onPressed: viewModel.fetch, child: const Text('Tentar novamente')),
                 ],
@@ -65,9 +65,18 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.blue),
                             onPressed: () async {
+                              final scaffoldMessenger = ScaffoldMessenger.of(context);
                               viewModel.setSelectedActivity(activity);
-                              await navigator.push(AppRoutes.activityRegister);
+                              final result = await navigator.push(ActivitiesRoutes.register);
                               if (mounted) {
+                                if (result == true) {
+                                  scaffoldMessenger.showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Edição realizada com sucesso!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
                                 viewModel.fetch();
                               }
                             },
@@ -88,9 +97,15 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          final scaffoldMessenger = ScaffoldMessenger.of(context);
           viewModel.setSelectedActivity(null);
-          await navigator.push(AppRoutes.activityRegister);
+          final result = await navigator.push(ActivitiesRoutes.register);
           if (mounted) {
+            if (result == true) {
+              scaffoldMessenger.showSnackBar(
+                const SnackBar(content: Text('Empresa cadastrada com sucesso!'), backgroundColor: Colors.green),
+              );
+            }
             viewModel.fetch();
           }
         },
@@ -104,14 +119,20 @@ class _ActivitiesListPageState extends State<ActivitiesListPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir Atividade'),
-        content: const Text('Tem certeza que deseja excluir esta atividade?'),
+        title: const Text('Excluir Empresa'),
+        content: const Text('Tem certeza que deseja excluir esta empresa?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
               Navigator.of(context).pop();
-              viewModel.deleteActivity(id);
+              await viewModel.deleteActivity(id);
+              if (mounted) {
+                scaffoldMessenger.showSnackBar(
+                  const SnackBar(content: Text('Empresa excluída com sucesso!'), backgroundColor: Colors.green),
+                );
+              }
             },
             child: const Text('Excluir', style: TextStyle(color: Colors.red)),
           ),

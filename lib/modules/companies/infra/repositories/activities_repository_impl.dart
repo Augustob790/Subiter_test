@@ -1,8 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 
-import '../../../core/database/app_database.dart';
-import '../domain/entities/activity.dart';
-import '../domain/repositories/activities_repository.dart';
+import '../../../../core/database/app_database.dart';
+import '../../domain/models/activity.dart';
+import '../../domain/repositories/activities_repository.dart';
 
 class ActivitiesRepositoryImpl implements ActivitiesRepository {
   const ActivitiesRepositoryImpl(this._database);

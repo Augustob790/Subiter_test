@@ -37,6 +37,17 @@ relatório, SRP em cada modalidade, OCP para novas modalidades, LSP no uso de
 
 ## 2. Tela Flutter para listar inspeções consumindo uma API REST simulada
 
+### Resposta objetiva ao enunciado
+
+- **Separação entre interface e lógica:** widgets ficam em `ui/`, estado e
+  coordenação ficam no ViewModel, regras no domínio e leitura/parsing do JSON na
+  infraestrutura.
+- **Gerenciamento de estado:** `Provider` entrega um `ChangeNotifier` que expõe
+  estados explícitos de carregamento, sucesso, vazio e erro.
+- **Tratamento de erros:** o contrato JSON é validado, erros técnicos ficam na
+  infraestrutura, o repositório tenta o cache SQLite e a tela oferece nova
+  tentativa quando não existem dados locais.
+
 A entrega usa `assets/mocks/inspections.json` como resposta de uma API REST. O
 arquivo possui envelope HTTP simulado:
 
@@ -167,6 +178,9 @@ Trocar o JSON por uma API real exige somente outra implementação de
 - i18n para os textos da interface;
 - POO, SOLID, Clean Code e Clean Architecture;
 - testes do data model e dos estados do ViewModel.
+
+Validação realizada: `flutter analyze` sem problemas, 7 testes automatizados
+aprovados e APK de depuração compilado com o JSON incluído nos assets.
 
 ## 3. Cadastro de três equipamentos em C++
 
